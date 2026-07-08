@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme {
+  --color-black: oklch(14.5% 0.004 250);
+  --color-white: oklch(97.5% 0.003 250);
+  --color-g-900: oklch(22% 0.004 250);
+  --color-g-700: oklch(34% 0.004 250);
+  --color-g-500: oklch(52% 0.003 250);
+  --color-g-300: oklch(72% 0.003 250);
+  --color-g-100: oklch(88% 0.003 250);
+
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-fragment), ui-monospace, monospace;
+  --font-serif: var(--font-garamond), Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Polarity: every chapter declares data-polarity, chrome survives via blend modes. */
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-ink-60: var(--ink-60);
+  --color-ink-40: var(--ink-40);
+  --color-ink-15: var(--ink-15);
+}
+
+:root,
+[data-polarity="dark"] {
+  --ink: var(--color-white);
+  --paper: var(--color-black);
+  --ink-60: color-mix(in oklab, var(--ink) 60%, transparent);
+  --ink-40: color-mix(in oklab, var(--ink) 40%, transparent);
+  --ink-15: color-mix(in oklab, var(--ink) 15%, transparent);
+}
+
+[data-polarity="light"] {
+  --ink: var(--color-black);
+  --paper: var(--color-white);
+  --ink-60: color-mix(in oklab, var(--ink) 60%, transparent);
+  --ink-40: color-mix(in oklab, var(--ink) 40%, transparent);
+  --ink-15: color-mix(in oklab, var(--ink) 15%, transparent);
+}
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: var(--color-black);
+    color: var(--color-white);
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-white);
+    color: var(--color-black);
+  }
+
+  [data-polarity="light"] ::selection {
+    background: var(--color-black);
+    color: var(--color-white);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--ink, var(--color-white));
+    outline-offset: 3px;
+  }
+
+  html.cursor-hidden,
+  html.cursor-hidden * {
+    cursor: none !important;
+  }
+}
+
+@layer components {
+  /* Type scale: committed steps, ratio >= 1.3 */
+  .type-hero {
+    font-family: var(--font-sans);
+    font-weight: 900;
+    font-size: clamp(4.25rem, 14vw, 15rem);
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  .type-chapter {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(2.75rem, 7vw, 7rem);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+
+  .type-sub {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+
+  .type-body {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.75;
+    max-width: 68ch;
+  }
+
+  /* The readout grammar: instrument labels, one system across the site. */
+  .type-readout {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .writing-vertical {
+    writing-mode: vertical-rl;
+  }
+
+  .hairline {
+    border-color: var(--ink-15, color-mix(in oklab, currentColor 15%, transparent));
+  }
+}
+
+/* Silver gelatin grain: whole-page film texture. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -100%;
+  z-index: 9990;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  animation: grain-shift 0.9s steps(4) infinite;
+}
+
+@keyframes grain-shift {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-2%, 3%, 0); }
+  50% { transform: translate3d(3%, -2%, 0); }
+  75% { transform: translate3d(-3%, -3%, 0); }
+  100% { transform: translate3d(2%, 2%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    animation: none;
+  }
+}
