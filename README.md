@@ -1,6 +1,6 @@
 # SIGNAL / NOISE — Ericsson Raphael
 
-A monochrome data-installation that happens to be a resume. Next.js 16 + Three.js (react-three-fiber) + GSAP + Lenis, black and white only.
+A monochrome data-installation that happens to be my resume. Next.js 16 + Three.js (react-three-fiber) + GSAP + Lenis, black and white only.
 
 ## Run
 
@@ -24,7 +24,7 @@ npm run build   # production build (static)
 
 ## Make it fully yours
 
-1. **Moniepoint bullets and dates**: `src/content/profile.ts` (search `TODO(ericsson)`).
+1. **Experience bullets and dates**: `src/content/profile.ts` (search `TODO(ericsson)`).
 2. **Gallery media**: Run `node scripts/prepare-gallery.mjs` to resize photos into `public/gallery/`, and `node scripts/transcode-reel.mjs` to convert HEVC video via the bundled ffmpeg-static, then update `src/content/gallery.ts`.
 3. **Social links**: add Instagram / portfolio links in `src/content/profile.ts` under `contact`.
 4. **Years of experience** are computed from `CAREER_START` (Oct 2021) in `profile.ts`, floored with a `+` suffix, so they update automatically each October.
