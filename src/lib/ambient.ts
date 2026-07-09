@@ -72,7 +72,9 @@ class AmbientPlayer {
     if (!this.audio) {
       this.audio = new Audio(SRC);
       this.audio.loop = true;
-      this.audio.preload = "auto";
+      // "none": the 2.5MB track must not compete with first paint. It
+      // buffers only when play() is actually called.
+      this.audio.preload = "none";
       this.audio.volume = 0;
     }
     return this.audio;

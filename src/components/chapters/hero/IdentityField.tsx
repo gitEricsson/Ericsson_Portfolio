@@ -153,17 +153,21 @@ function sampleGlyphTargets(
 
 type Props = {
   handles: HeroHandles;
+  /** Reports whether the glyphs were sampled: false triggers the DOM fallback. */
+  onOutcome?: (ok: boolean) => void;
 };
 
 /** FIG. 01: thousands of points assembling into the name, dissolving on scroll. */
-export default function IdentityField({ handles }: Props) {
+export default function IdentityField({ handles, onOutcome }: Props) {
   const reduced = useReducedMotion();
   const { gl, viewport, invalidate } = useThree();
   const pointsRef = useRef<THREE.Points>(null);
 
   const data = useMemo(() => {
+    // Lighter on phones: mobile GPUs throttle heavy point clouds under
+    // battery saver, which is exactly where the name used to vanish.
     const count =
-      typeof window !== "undefined" && window.innerWidth < 768 ? 7000 : 16000;
+      typeof window !== "undefined" && window.innerWidth < 768 ? 5000 : 15000;
     const positions = new Float32Array(count * 3);
     const targets = new Float32Array(count * 3);
     const rands = new Float32Array(count * 4);
@@ -217,30 +221,58 @@ export default function IdentityField({ handles }: Props) {
   // so the attribute is recreated and re-uploaded: mutating the array of a
   // remounted attribute leaves the GPU holding the stale first upload.
   const [targets, setTargets] = useState<Float32Array>(data.targets);
+  const reportedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
-    document.fonts.ready.then(() => {
-      if (cancelled) return;
+    if (viewport.width > 0.5) {
+      worldRef.current = { w: viewport.width, h: viewport.height };
+    }
+
+    const report = (ok: boolean) => {
+      if (reportedRef.current) return;
+      reportedRef.current = true;
+      onOutcome?.(ok);
+    };
+
+    const trySample = (): boolean => {
+      if (reportedRef.current) return true;
+      if (cancelled || worldRef.current.w < 0.5) return false;
       const sampled = sampleGlyphTargets(
         data.count,
         worldRef.current.w * 0.9,
         worldRef.current.h * 0.62
       );
-      if (process.env.NODE_ENV !== "production") {
-        (window as unknown as Record<string, unknown>).__erHeroDebug = {
-          sampledOk: !!sampled,
-          handles,
-          points: pointsRef.current,
-        };
-      }
-      if (sampled) setTargets(sampled);
-      invalidate();
+      if (!sampled) return false;
+      setTargets(sampled);
+      report(true);
+      return true;
+    };
+
+    // Attempt immediately with whatever font is resolved (a fallback face
+    // still spells the name), refine once web fonts settle, and retry once
+    // more. A stalled fonts.ready or an empty pixel read must never be the
+    // reason the name stays noise: report(false) hands off to the DOM name.
+    const okNow = trySample();
+    document.fonts.ready.then(() => {
+      if (!cancelled) trySample();
     });
+    const retry = window.setTimeout(() => {
+      if (!trySample() && !okNow) report(false);
+    }, 1800);
+
     return () => {
       cancelled = true;
+      window.clearTimeout(retry);
     };
-  }, [data, handles, invalidate]);
+  }, [data, viewport.width, viewport.height, onOutcome]);
+
+  // Demand-mode canvases must be told to render after the new target buffer
+  // commits, or the assembled name never paints (reduced-motion path).
+  useEffect(() => {
+    const id = requestAnimationFrame(() => invalidate());
+    return () => cancelAnimationFrame(id);
+  }, [targets, invalidate]);
 
   useFrame((_, delta) => {
     const points = pointsRef.current;

@@ -36,8 +36,10 @@ export default function Preloader() {
       },
     });
 
+    // Kept deliberately brief: this plays on every load, so it earns its
+    // ~1.7s and no more.
     tl.to(nameRef.current, {
-      duration: 1.1,
+      duration: 0.7,
       scrambleText: {
         text: "ERICSSON RAPHAEL",
         chars: SCRAMBLE_CHARS,
@@ -49,7 +51,7 @@ export default function Preloader() {
         counter,
         {
           v: 100,
-          duration: 1.5,
+          duration: 0.9,
           ease: "power2.inOut",
           onUpdate: () => {
             if (countRef.current) {
@@ -59,18 +61,18 @@ export default function Preloader() {
             }
           },
         },
-        0.15
+        0.1
       )
       .to(
         lineRef.current,
-        { scaleX: 1, duration: 1.5, ease: "power2.inOut" },
-        0.15
+        { scaleX: 1, duration: 0.9, ease: "power2.inOut" },
+        0.1
       )
       .to(root, {
         clipPath: "inset(0% 0% 100% 0%)",
-        duration: 0.9,
+        duration: 0.7,
         ease: "expo.inOut",
-        delay: 0.15,
+        delay: 0.1,
       });
 
     return () => {

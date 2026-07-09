@@ -7,6 +7,10 @@ import { useGSAP } from "@gsap/react";
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin, useGSAP);
   gsap.defaults({ ease: "expo.out", duration: 0.9 });
+  // Mobile address bars show/hide constantly, changing innerHeight. Without
+  // this, every toolbar shift recomputes trigger positions and nudges
+  // scroll-scrubbed values (like the hero dissolve) off their resting point.
+  ScrollTrigger.config({ ignoreMobileResize: true });
   if (process.env.NODE_ENV !== "production") {
     const w = window as unknown as Record<string, unknown>;
     w.__gsap = gsap;

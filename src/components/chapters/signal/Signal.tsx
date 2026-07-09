@@ -9,7 +9,12 @@ import SectionCanvas from "@/components/shared/SectionCanvas";
 import Readout from "@/components/shared/Readout";
 import SplitReveal from "@/components/shared/SplitReveal";
 import Magnetic from "@/components/shared/Magnetic";
-import Ripples, { type RipplePointer } from "./Ripples";
+import dynamic from "next/dynamic";
+import type { RipplePointer } from "./Ripples";
+
+// three.js stays out of the initial bundle: this decorative scene loads
+// only when the contact chapter mounts.
+const Ripples = dynamic(() => import("./Ripples"), { ssr: false });
 
 /** Chapter 06: contact plus site footer. A white page broadcasting quiet ripples. */
 export default function Signal() {
