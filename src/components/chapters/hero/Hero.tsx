@@ -42,8 +42,6 @@ export default function Hero() {
   // cannot be trusted (no WebGL, sampling failed, or it never assembled).
   const [nameVisible, setNameVisible] = useState(false);
   const assembledRef = useRef(false);
-  const dbgRef = useRef<HTMLSpanElement>(null);
-  const [dbg, setDbg] = useState(false);
   const reduced = useReducedMotion();
 
   // Plain mutable objects shared with the scene: GSAP writes, shader reads.
@@ -60,25 +58,6 @@ export default function Hero() {
     if (ok) assembledRef.current = true;
     else setNameVisible(true);
   }, []);
-
-  // Append ?debug to the URL to read the live shader values from any device.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("debug")) return;
-    setDbg(true);
-    let raf = 0;
-    const loop = () => {
-      raf = requestAnimationFrame(loop);
-      if (dbgRef.current) {
-        dbgRef.current.textContent = `PROG ${handles.uProgress.value.toFixed(
-          2
-        )}  DISS ${handles.uDissolve.value.toFixed(2)}  IH ${
-          window.innerHeight
-        }`;
-      }
-    };
-    loop();
-    return () => cancelAnimationFrame(raf);
-  }, [handles]);
 
   // WebGL gate plus a watchdog: if the particles have not reported an
   // assembled name within the window, reveal the DOM name and leave it.
@@ -230,15 +209,6 @@ export default function Hero() {
       <h1 className="sr-only">
         Ericsson Raphael. Software and Data Engineer. Lagos.
       </h1>
-
-      {dbg && (
-        <span
-          ref={dbgRef}
-          className="type-readout fixed left-1/2 top-16 z-9999 -translate-x-1/2 bg-black px-2 py-1 text-white"
-        >
-          PROG 0.00 DISS 0.00
-        </span>
-      )}
 
       {/* Guaranteed name: the particle field, if it works, sits on top and
           the DOM name stays hidden. If not, this is what the visitor sees. */}
